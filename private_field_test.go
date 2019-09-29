@@ -11,8 +11,8 @@ import (
 type Strawberry struct {
 	Foo int
 	foo int // private
-	Bar float32
-	bar float32 // private
+	Bar float64
+	bar float64 // private
 }
 
 type Strawberry64 struct {

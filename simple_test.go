@@ -11,7 +11,7 @@ import (
 type Avocado struct {
 	Foo int
 	Bar float64
-	Baz float32
+	Baz float64
 }
 
 type AvocadoF64 struct {

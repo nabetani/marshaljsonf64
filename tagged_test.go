@@ -2,7 +2,6 @@ package marshaljsonf64_test
 
 import (
 	"encoding/json"
-	"log"
 	"reflect"
 	"testing"
 
@@ -10,7 +9,7 @@ import (
 )
 
 type Apricot struct {
-	Foo float32 `json:"foo-tagged"`
+	Foo float64 `json:"foo-tagged"`
 	Bar float64 `json:"bar-tagged"`
 }
 
@@ -30,17 +29,16 @@ func TestWithNamedFields(t *testing.T) {
 		t.Errorf("err = %v, want nil", err)
 		return
 	}
-	log.Println(string(j))
 	a := Apricot{}
 	err = json.Unmarshal(j, &a)
 	if err != nil {
 		t.Errorf("err = %v, want nil ( json=%q )", err, string(j))
 		return
 	}
-	if a.Foo != F1 {
+	if float64(a.Foo) != F1 {
 		t.Errorf("a.Foo=%v, want %v", a.Foo, F1)
 	}
-	if a.Bar != F2 {
+	if float64(a.Bar) != F2 {
 		t.Errorf("a.Bar=%v, want %v", a.Bar, F2)
 	}
 }
