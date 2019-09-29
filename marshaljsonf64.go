@@ -47,17 +47,9 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		return t.Kind() == reflect.Slice && isFloat32(t.Elem())
 	}
 
-	encodeF32Array := func(v reflect.Value, f reflect.StructField) string {
+	encodeF32List := func(v reflect.Value, f reflect.StructField, length int) string {
 		items := []string{}
-		for i := 0; i < f.Type.Len(); i++ {
-			items = append(items, formatFloat32(v.Index(i)))
-		}
-		return strings.Join(items, ",")
-	}
-
-	encodeF32Slice := func(v reflect.Value, f reflect.StructField) string {
-		items := []string{}
-		for i := 0; i < v.Len(); i++ {
+		for i := 0; i < length; i++ {
 			items = append(items, formatFloat32(v.Index(i)))
 		}
 		return strings.Join(items, ",")
@@ -79,9 +71,9 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		} else if isFloat32(f.Type) {
 			items = append(items, fmt.Sprintf("%q:%s", *name, formatFloat32(v)))
 		} else if isFloat32Array(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Array(v, f)))
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32List(v, f, v.Type().Len())))
 		} else if isFloat32Slice(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Slice(v, f)))
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32List(v, f, v.Len())))
 		} else {
 			j, err := json.Marshal(v.Interface())
 			if err != nil {
