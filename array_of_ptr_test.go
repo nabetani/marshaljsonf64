@@ -20,7 +20,7 @@ type Lemon64 struct {
 }
 
 func (o Lemon64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 func TestArrayOfPtr(t *testing.T) {

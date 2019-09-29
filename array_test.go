@@ -19,7 +19,7 @@ type Watermelon64 struct {
 }
 
 func (o Watermelon64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 func TestArray(t *testing.T) {

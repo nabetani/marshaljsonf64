@@ -27,11 +27,11 @@ type Mango64 struct {
 }
 
 func (o Lychee64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 func (o Mango64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 func TestEmbedded(t *testing.T) {
