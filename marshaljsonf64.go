@@ -21,6 +21,11 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		return &tag
 	}
 
+	isFloat32Ptr := func(t reflect.Type) bool {
+		return t.Kind() == reflect.Ptr &&
+			t.Elem().Kind() == reflect.Float32
+	}
+
 	numf := t.NumField()
 	oval := reflect.ValueOf(o).Elem()
 	items := []string{}
@@ -37,6 +42,9 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		}
 		if f.Type.Kind() == reflect.Float32 {
 			s := strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64)
+			items = append(items, fmt.Sprintf("%q:%s", *name, s))
+		} else if isFloat32Ptr(f.Type) {
+			s := strconv.FormatFloat(float64(*v.(*float32)), 'f', -1, 64)
 			items = append(items, fmt.Sprintf("%q:%s", *name, s))
 		} else {
 			j, err := json.Marshal(v)
