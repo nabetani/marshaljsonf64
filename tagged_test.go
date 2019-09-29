@@ -42,9 +42,3 @@ func TestWithNamedFields(t *testing.T) {
 		t.Errorf("a.Bar=%v, want %v", a.Bar, F2)
 	}
 }
-
-// TODO: 埋め込み構造体
-// TODO: *float32
-// TODO: []float32
-// TODO: []*float32
-// TODO: 構造体内構造体
