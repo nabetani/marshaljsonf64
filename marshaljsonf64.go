@@ -8,6 +8,24 @@ import (
 	"strings"
 )
 
+func isFloat32(t reflect.Type) bool {
+	if t.Kind() == reflect.Ptr {
+		return isFloat32(t.Elem())
+	}
+	return t.Kind() == reflect.Float32
+}
+
+func formatFloat32(v reflect.Value) string {
+	if v.Type().Kind() == reflect.Ptr {
+		if v.IsNil() || !v.IsValid() {
+			return "null"
+		}
+		return formatFloat32(v.Elem())
+	}
+	f32 := v.Interface().(float32)
+	return strconv.FormatFloat(float64(f32), 'f', -1, 64)
+}
+
 // MarshalJSONF64 メンバに float32 型の値がある場合に、 精度多めで出力するためのメソッド
 func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 	nameFromField := func(f reflect.StructField) *string {
@@ -21,26 +39,18 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		return &tag
 	}
 
-	isFloat32Ptr := func(t reflect.Type) bool {
-		return t.Kind() == reflect.Ptr &&
-			t.Elem().Kind() == reflect.Float32
-	}
-
 	isFloat32Array := func(t reflect.Type) bool {
-		return t.Kind() == reflect.Array &&
-			t.Elem().Kind() == reflect.Float32
+		return t.Kind() == reflect.Array && isFloat32(t.Elem())
 	}
 
 	isFloat32Slice := func(t reflect.Type) bool {
-		return t.Kind() == reflect.Slice &&
-			t.Elem().Kind() == reflect.Float32
+		return t.Kind() == reflect.Slice && isFloat32(t.Elem())
 	}
 
 	encodeF32Array := func(v reflect.Value, f reflect.StructField) string {
 		items := []string{}
 		for i := 0; i < f.Type.Len(); i++ {
-			e := v.Index(i).Interface().(float32)
-			items = append(items, strconv.FormatFloat(float64(e), 'f', -1, 64))
+			items = append(items, formatFloat32(v.Index(i)))
 		}
 		return strings.Join(items, ",")
 	}
@@ -48,8 +58,7 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 	encodeF32Slice := func(v reflect.Value, f reflect.StructField) string {
 		items := []string{}
 		for i := 0; i < v.Len(); i++ {
-			e := v.Index(i).Interface().(float32)
-			items = append(items, strconv.FormatFloat(float64(e), 'f', -1, 64))
+			items = append(items, formatFloat32(v.Index(i)))
 		}
 		return strings.Join(items, ",")
 	}
@@ -63,23 +72,18 @@ func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
 		if !exported {
 			continue
 		}
-		v := oval.FieldByName(f.Name).Interface()
+		v := oval.FieldByName(f.Name)
 		name := nameFromField(f)
 		if name == nil {
 			continue
-		}
-		if f.Type.Kind() == reflect.Float32 {
-			s := strconv.FormatFloat(float64(v.(float32)), 'f', -1, 64)
-			items = append(items, fmt.Sprintf("%q:%s", *name, s))
-		} else if isFloat32Ptr(f.Type) {
-			s := strconv.FormatFloat(float64(*v.(*float32)), 'f', -1, 64)
-			items = append(items, fmt.Sprintf("%q:%s", *name, s))
+		} else if isFloat32(f.Type) {
+			items = append(items, fmt.Sprintf("%q:%s", *name, formatFloat32(v)))
 		} else if isFloat32Array(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Array(oval.FieldByName(f.Name), f)))
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Array(v, f)))
 		} else if isFloat32Slice(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Slice(oval.FieldByName(f.Name), f)))
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32Slice(v, f)))
 		} else {
-			j, err := json.Marshal(v)
+			j, err := json.Marshal(v.Interface())
 			if err != nil {
 				return nil, err
 			}
