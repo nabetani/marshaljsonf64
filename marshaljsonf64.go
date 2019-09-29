@@ -26,8 +26,8 @@ func formatFloat32(v reflect.Value) string {
 	return strconv.FormatFloat(float64(f32), 'f', -1, 64)
 }
 
-// MarshalJSONF64 メンバに float32 型の値がある場合に、 精度多めで出力するためのメソッド
-func MarshalJSONF64(o interface{}, t reflect.Type) ([]byte, error) {
+// Impl メンバに float32 型の値がある場合に、 精度多めで出力するためのメソッド
+func Impl(o interface{}, t reflect.Type) ([]byte, error) {
 	nameFromField := func(f reflect.StructField) *string {
 		tag := f.Tag.Get("json")
 		if tag == "-" {

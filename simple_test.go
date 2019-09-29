@@ -21,7 +21,7 @@ type AvocadoF64 struct {
 }
 
 func (o AvocadoF64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 const F1 = 0xf1000000

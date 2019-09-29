@@ -25,7 +25,7 @@ type Durian64 struct {
 }
 
 func (o Durian64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 func TestPtrToF32(t *testing.T) {
