@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"marshaljsonf64"
+	"github.com/nabetani/marshaljsonf64"
 )
 
 type Lychee struct {
