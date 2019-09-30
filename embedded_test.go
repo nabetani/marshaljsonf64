@@ -12,7 +12,12 @@ type Lychee struct {
 	Foo float64
 }
 
+type Nectarine struct {
+	Bar float64
+}
+
 type Mango struct {
+	Nectarine
 	Lychee `json:"lychee"`
 	Qux    float64
 }
@@ -22,6 +27,7 @@ type Lychee64 struct {
 }
 
 type Mango64 struct {
+	Nectarine
 	Lychee64 `json:"lychee"`
 	Qux      float32
 }
@@ -36,8 +42,9 @@ func (o Mango64) MarshalJSON() ([]byte, error) {
 
 func TestEmbedded(t *testing.T) {
 	m64 := Mango64{
-		Lychee64: Lychee64{Foo: F1},
-		Qux:      F2,
+		Nectarine: Nectarine{Bar: F4},
+		Lychee64:  Lychee64{Foo: F1},
+		Qux:       F2,
 	}
 	j, err := json.Marshal(m64)
 	if err != nil {
@@ -55,5 +62,8 @@ func TestEmbedded(t *testing.T) {
 	}
 	if m.Qux != F2 {
 		t.Errorf("m.Qux=%v, want %v", m.Qux, F2)
+	}
+	if m.Bar != F4 {
+		t.Errorf("m.Bar=%v, want %v", m.Bar, F4)
 	}
 }
