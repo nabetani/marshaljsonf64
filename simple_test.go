@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"marshaljsonf64"
+	"github.com/nabetani/marshaljsonf64"
 )
 
 type Avocado struct {
@@ -21,13 +21,17 @@ type AvocadoF64 struct {
 }
 
 func (o AvocadoF64) MarshalJSON() ([]byte, error) {
-	return marshaljsonf64.MarshalJSONF64(&o, reflect.TypeOf(o))
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
 }
 
 const F1 = 0xf1000000
 const F2 = 0xf2000000
 const F3 = 0xf3000000
 const F4 = 0xf4000000
+const F5 = 0xf5000000
+const F6 = 0xf6000000
+const F7 = 0xf7000000
+const F8 = 0xf8000000
 
 func TestSimple(t *testing.T) {
 	a64 := AvocadoF64{Foo: F1, Bar: F2, Baz: F3}
