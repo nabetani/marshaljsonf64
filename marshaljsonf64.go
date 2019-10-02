@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -22,8 +21,8 @@ func formatFloat32(v reflect.Value) string {
 		}
 		return formatFloat32(v.Elem())
 	}
-	f32 := v.Interface().(float32)
-	return strconv.FormatFloat(float64(f32), 'f', -1, 64)
+	i := v.Interface()
+	return fmt.Sprintf("%.20g", i)
 }
 
 // Impl メンバに float32 型の値がある場合に、 精度多めで出力するためのメソッド
