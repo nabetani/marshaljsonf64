@@ -3,7 +3,10 @@ package marshaljsonf64_test
 import (
 	"encoding/json"
 	"log"
+	"reflect"
 	"testing"
+
+	"github.com/nabetani/marshaljsonf64"
 )
 
 type Tangerine float64
@@ -52,13 +55,17 @@ type Mango64 struct {
 	Qux         float32
 }
 
-// func (o Lychee64) MarshalJSON() ([]byte, error) {
-// 	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
-// }
+func (o Lychee64) MarshalJSON() ([]byte, error) {
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
+}
 
-// func (o Mango64) MarshalJSON() ([]byte, error) {
-// 	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
-// }
+func (o Mango64) MarshalJSON() ([]byte, error) {
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
+}
+
+func (o Mandarine64) MarshalJSON() ([]byte, error) {
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
+}
 
 func TestEmbedded(t *testing.T) {
 	m64 := Mango64{
@@ -98,5 +105,32 @@ func TestEmbedded(t *testing.T) {
 	}
 	if m.Baz != F6 {
 		t.Errorf("m.Baz=%v, want %v", m.Baz, F6)
+	}
+}
+
+type Pomegranate struct {
+	Nectarine
+}
+
+type Pomegranate64 struct {
+	Nectarine64
+}
+
+func (o Pomegranate64) MarshalJSON() ([]byte, error) {
+	return marshaljsonf64.Impl(&o, reflect.TypeOf(o))
+}
+
+func TestEmbedded2(t *testing.T) {
+	p64 := Pomegranate64{Nectarine64: Nectarine64{Bar: F4}}
+	j, err := json.Marshal(p64)
+	log.Println(string(j))
+	if err != nil {
+		t.Errorf("err = %v, want nil", err)
+		return
+	}
+	p := Pomegranate{}
+	err = json.Unmarshal(j, &p)
+	if p.Bar != F4 {
+		t.Errorf("p.Bar=%v, want %v", p.Bar, F4)
 	}
 }
