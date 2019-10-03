@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"marshaljsonf64"
 	"reflect"
+
+	"github.com/nabetani/marshaljsonf64"
 )
 
 type banana struct {
@@ -21,10 +22,13 @@ func (o cherry) MarshalJSON() ([]byte, error) {
 }
 
 func main() {
-	b := banana{Foo: 0x90000000}
-	c := cherry{Foo: 0x90000000}
+	b := banana{Foo: 2415919104}
+	c := cherry{Foo: 2415919104}
 	jb, _ := json.Marshal(b)
 	jc, _ := json.Marshal(c)
-	fmt.Println("banana:", string(jb)) //=> banana: {"Foo":2415919000}
-	fmt.Println("cherry:", string(jc)) //=> cherry: {"Foo":2415919104}
+	fmt.Println("banana:", string(jb))
+	//=> banana: {"Foo":2415919000}
+
+	fmt.Println("cherry:", string(jc))
+	//=> cherry: {"Foo":2415919104}
 }
