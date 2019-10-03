@@ -3,7 +3,9 @@ package marshaljsonf64
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -14,15 +16,25 @@ func isFloat32(t reflect.Type) bool {
 	return t.Kind() == reflect.Float32
 }
 
-func formatFloat32(v reflect.Value) string {
+func errorUnlessFinite(v reflect.Value) error {
+	f := v.Float()
+	if math.IsInf(f, 0) || math.IsNaN(f) {
+		return &json.UnsupportedValueError{v, strconv.FormatFloat(f, 'g', -1, 64)}
+	}
+	return nil
+}
+
+func formatFloat32(v reflect.Value) (string, error) {
 	if v.Type().Kind() == reflect.Ptr {
 		if v.IsNil() || !v.IsValid() {
-			return "null"
+			return "null", nil
 		}
 		return formatFloat32(v.Elem())
 	}
-	i := v.Interface()
-	return fmt.Sprintf("%.20g", i)
+	if err := errorUnlessFinite(v); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%.20g", v.Float()), nil
 }
 
 func nameFromField(f reflect.StructField) *string {
@@ -44,12 +56,16 @@ func isFloat32Slice(t reflect.Type) bool {
 	return t.Kind() == reflect.Slice && isFloat32(t.Elem())
 }
 
-func encodeF32List(v reflect.Value, f reflect.StructField, length int) string {
+func encodeF32List(v reflect.Value, f reflect.StructField, length int) (string, error) {
 	items := []string{}
 	for i := 0; i < length; i++ {
-		items = append(items, formatFloat32(v.Index(i)))
+		str, err := formatFloat32(v.Index(i))
+		if err != nil {
+			return "", err
+		}
+		items = append(items, str)
 	}
-	return strings.Join(items, ",")
+	return strings.Join(items, ","), nil
 }
 
 func collectJSONItems(t reflect.Type, o reflect.Value) ([]string, error) {
@@ -66,11 +82,23 @@ func collectJSONItems(t reflect.Type, o reflect.Value) ([]string, error) {
 		if name == nil {
 			continue
 		} else if isFloat32(f.Type) {
-			items = append(items, fmt.Sprintf("%q:%s", *name, formatFloat32(v)))
+			str, err := formatFloat32(v)
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, fmt.Sprintf("%q:%s", *name, str))
 		} else if isFloat32Array(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32List(v, f, v.Type().Len())))
+			str, err := encodeF32List(v, f, v.Type().Len())
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, str))
 		} else if isFloat32Slice(f.Type) {
-			items = append(items, fmt.Sprintf("%q:[%s]", *name, encodeF32List(v, f, v.Len())))
+			str, err := encodeF32List(v, f, v.Len())
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, fmt.Sprintf("%q:[%s]", *name, str))
 		} else if f.Anonymous && "" == f.Tag {
 			embedded, err := collectJSONItems(f.Type, v)
 			if err != nil {
