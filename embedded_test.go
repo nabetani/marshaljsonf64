@@ -2,7 +2,6 @@ package marshaljsonf64_test
 
 import (
 	"encoding/json"
-	"log"
 	"reflect"
 	"testing"
 
@@ -25,12 +24,12 @@ type Mandarine struct {
 }
 
 type Mango struct {
-	Tangerine
+	Tangerine `json:"Tangerine"`
 	Nectarine
+	Plum      `json:"Plum"`
+	Lychee    `json:"lychee"`
 	Mandarine `json:"Mandarine"`
-	Plum
-	Lychee `json:"lychee"`
-	Qux    float64
+	Qux       float64
 }
 
 type Tangerine64 float32
@@ -47,8 +46,8 @@ type Mandarine64 struct {
 }
 
 type Mango64 struct {
-	Nectarine64
 	Tangerine64 `json:"Tangerine"`
+	Nectarine64
 	Plum64      `json:"Plum"`
 	Lychee64    `json:"lychee"`
 	Mandarine64 `json:"Mandarine"`
@@ -77,7 +76,6 @@ func TestEmbedded(t *testing.T) {
 		Qux:         F2,
 	}
 	j, err := json.Marshal(m64)
-	log.Println(string(j))
 	if err != nil {
 		t.Errorf("err = %v, want nil", err)
 		return
@@ -123,7 +121,6 @@ func (o Pomegranate64) MarshalJSON() ([]byte, error) {
 func TestEmbedded2(t *testing.T) {
 	p64 := Pomegranate64{Nectarine64: Nectarine64{Bar: F4}}
 	j, err := json.Marshal(p64)
-	log.Println(string(j))
 	if err != nil {
 		t.Errorf("err = %v, want nil", err)
 		return
