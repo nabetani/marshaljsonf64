@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"marshaljsonf64"
+	"github.com/nabetani/marshaljsonf64"
 )
 
 type Lemon struct {
