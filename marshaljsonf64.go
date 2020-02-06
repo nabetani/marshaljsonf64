@@ -16,10 +16,9 @@ func isFloat32(t reflect.Type) bool {
 	return t.Kind() == reflect.Float32
 }
 
-func errorUnlessFinite(v reflect.Value) error {
-	f := v.Float()
+func errorUnlessFinite(v reflect.Value, f float64) error {
 	if math.IsInf(f, 0) || math.IsNaN(f) {
-		return &json.UnsupportedValueError{v, strconv.FormatFloat(f, 'g', -1, 64)}
+		return &json.UnsupportedValueError{Value: v, Str: strconv.FormatFloat(f, 'g', -1, 64)}
 	}
 	return nil
 }
@@ -31,10 +30,18 @@ func formatFloat32(v reflect.Value) (string, error) {
 		}
 		return formatFloat32(v.Elem())
 	}
-	if err := errorUnlessFinite(v); err != nil {
+	f := v.Float()
+	if err := errorUnlessFinite(v, f); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%.20g", v.Float()), nil
+	f32 := float32(f)
+	if i := int64(f); float32(i) == f32 {
+		return strconv.FormatInt(i, 10), nil
+	}
+	if u := uint64(f); float32(u) == f32 {
+		return strconv.FormatUint(u, 10), nil
+	}
+	return strconv.FormatFloat(f, 'g', -1, 32), nil
 }
 
 func nameFromField(f reflect.StructField) *string {

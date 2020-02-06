@@ -43,7 +43,12 @@ func TestRandom(t *testing.T) {
 			t.Errorf("err = %v, want nil", err)
 			return
 		}
-		if q.Foo != float64(p.Foo) {
+		if float32(int64(p.Foo)) == p.Foo {
+			if q.Foo != float64(p.Foo) {
+				t.Errorf("q.Foo=%v, want %v, json=%v", q.Foo, p.Foo, string(j))
+			}
+		}
+		if float32(q.Foo) != p.Foo {
 			t.Errorf("q.Foo=%v, want %v, json=%v", q.Foo, p.Foo, string(j))
 		}
 	}
